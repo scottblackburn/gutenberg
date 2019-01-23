@@ -28,6 +28,7 @@ export { isInDefaultBlock } from './is-in-default-block';
 export { loginUser } from './login-user';
 export { observeFocusLoss } from './observe-focus-loss';
 export { openAllBlockInserterCategories } from './open-all-block-inserter-categories';
+export { observePageWarnings } from './observe-page-warnings';
 export { openDocumentSettingsSidebar } from './open-document-settings-sidebar';
 export { openGlobalBlockInserter } from './open-global-block-inserter';
 export { openPublishPanel } from './open-publish-panel';
