@@ -130,6 +130,7 @@ export class MediaPlaceholder extends Component {
 			onSelect,
 			value = {},
 			onSelectURL,
+			onDoubleClick,
 			onHTMLDrop = noop,
 			multiple = false,
 			notices,
@@ -200,6 +201,7 @@ export class MediaPlaceholder extends Component {
 				instructions={ instructions }
 				className={ classnames( 'editor-media-placeholder block-editor-media-placeholder', className ) }
 				notices={ notices }
+				onDoubleClick={ onDoubleClick }
 			>
 				<MediaUploadCheck>
 					{ !! mediaUpload && (
