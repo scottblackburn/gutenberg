@@ -1,3 +1,9 @@
+## V.V.V (Unrealeased)
+
+### New Features
+
+- Added a new `BaseControl.VisualLabel` component.
+
 ## 7.2.0 (2019-03-20)
 
 ### Improvements
