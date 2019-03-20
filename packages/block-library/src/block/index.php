@@ -37,7 +37,6 @@ register_block_type(
 				'type' => 'number',
 			),
 		),
-
 		'render_callback' => 'render_block_core_block',
 	)
 );
