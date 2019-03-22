@@ -42,6 +42,11 @@
 			> .editor-block-list__block-edit {
 				margin-top: 0;
 				margin-bottom: 0;
+
+				// Avoids overflow-x bug when used within Section Block
+				// and stops Block Toolbar disappearing "offscreen"
+				margin-left: -$block-padding;
+				margin-right: -$block-padding;
 			}
 
 			// Extend the passthrough concept to the block paddings, which we zero out.
