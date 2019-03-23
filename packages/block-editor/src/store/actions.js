@@ -6,27 +6,56 @@ import { castArray } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { getDefaultBlockName, createBlock } from '@wordpress/blocks';
+import {
+	getDefaultBlockName,
+	createBlock,
+	doBlocksMatchTemplate,
+} from '@wordpress/blocks';
 
 /**
  * Internal dependencies
  */
 import { select } from './controls';
+import { STORE_KEY } from './constants';
 
 /**
- * Returns an action object used in signalling that blocks state should be
+ * Returns an action generator used in signalling that blocks state should be
  * reset to the specified array of blocks, taking precedence over any other
  * content reflected as an edit in state.
  *
  * @param {Array} blocks Array of blocks.
- *
- * @return {Object} Action object.
  */
-export function resetBlocks( blocks ) {
-	return {
+export function* resetBlocks( blocks ) {
+	yield {
 		type: 'RESET_BLOCKS',
 		blocks,
 	};
+	const template = yield select(
+		STORE_KEY,
+		'getTemplate'
+	);
+	const templateLock = yield select(
+		STORE_KEY,
+		'getTemplateLock'
+	);
+
+	// Unlocked templates are considered always valid because they act
+	// as default values only.
+	const isBlocksValidToTemplate = (
+		! template ||
+		templateLock !== 'all' ||
+		doBlocksMatchTemplate( blocks, template )
+	);
+
+	const isValidTemplate = yield select(
+		STORE_KEY,
+		'isValidTemplate'
+	);
+
+	// Update if validity has changed.
+	if ( isBlocksValidToTemplate !== isValidTemplate ) {
+		yield setTemplateValidity( isBlocksValidToTemplate );
+	}
 }
 
 /**
@@ -196,21 +225,26 @@ export function toggleSelection( isSelectionEnabled = true ) {
 }
 
 /**
- * Returns an action object signalling that a blocks should be replaced with
+ * Returns an action generator signalling that a blocks should be replaced with
  * one or more replacement blocks.
  *
  * @param {(string|string[])} clientIds Block client ID(s) to replace.
  * @param {(Object|Object[])} blocks    Replacement block(s).
- *
- * @return {Object} Action object.
  */
-export function replaceBlocks( clientIds, blocks ) {
-	return {
+export function* replaceBlocks( clientIds, blocks ) {
+	yield {
 		type: 'REPLACE_BLOCKS',
 		clientIds: castArray( clientIds ),
 		blocks: castArray( blocks ),
 		time: Date.now(),
 	};
+	const blockCount = yield select(
+		STORE_KEY,
+		'getBlockCount'
+	);
+	if ( ! blockCount ) {
+		yield insertDefaultBlock();
+	}
 }
 
 /**
