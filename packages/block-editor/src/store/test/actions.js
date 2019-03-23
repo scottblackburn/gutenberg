@@ -1,4 +1,9 @@
 /**
+ * WordPress dependencies
+ */
+import { getDefaultBlockName, doBlocksMatchTemplate } from '@wordpress/blocks';
+
+/**
  * Internal dependencies
  */
 import {
@@ -28,17 +33,124 @@ import {
 	updateBlock,
 	updateBlockAttributes,
 	updateBlockListSettings,
+	setTemplateValidity,
 } from '../actions';
 import { select } from '../controls';
+import { STORE_KEY } from '../constants';
+
+jest.mock( '@wordpress/blocks' );
+
+const {
+	registerBlockType,
+	unregisterBlockType,
+	getBlockTypes,
+	createBlock,
+} = jest.requireActual( '@wordpress/blocks' );
+
+/**
+ * Needed because we're mocking '@wordpress/blocks' and the implementation is
+ * in the imported actions module.
+ */
+doBlocksMatchTemplate.mockImplementation( ( ...args ) => {
+	const { doBlocksMatchTemplate: matcher } = jest.requireActual(
+		'@wordpress/blocks'
+	);
+	return matcher( ...args );
+} );
 
 describe( 'actions', () => {
 	describe( 'resetBlocks', () => {
-		it( 'should return the RESET_BLOCKS actions', () => {
+		let fulfillment;
+		const reset = ( blocks ) => fulfillment = resetBlocks( blocks );
+		it( 'should yield the RESET_BLOCKS action', () => {
 			const blocks = [];
-			const result = resetBlocks( blocks );
-			expect( result ).toEqual( {
+			reset( blocks );
+			const { value } = fulfillment.next();
+			expect( value ).toEqual( {
 				type: 'RESET_BLOCKS',
 				blocks,
+			} );
+		} );
+		it( 'should yield select control for getTemplate', () => {
+			const { value } = fulfillment.next();
+			expect( value ).toEqual(
+				select(
+					STORE_KEY,
+					'getTemplate'
+				)
+			);
+		} );
+		it( 'should yield select control for getTemplateLock', () => {
+			const { value } = fulfillment.next();
+			expect( value ).toEqual(
+				select(
+					STORE_KEY,
+					'getTemplateLock'
+				)
+			);
+		} );
+		it( 'should yield select control for isValidTemplate', () => {
+			const { value } = fulfillment.next();
+			expect( value ).toEqual(
+				select(
+					STORE_KEY,
+					'isValidTemplate'
+				)
+			);
+		} );
+		describe( 'testing variations of template and template lock', () => {
+			const defaultBlockSettings = {
+				save: () => 'Saved',
+				category: 'common',
+				title: 'block title',
+			};
+			beforeEach( () => {
+				registerBlockType( 'core/test-block', defaultBlockSettings );
+			} );
+
+			afterEach( () => {
+				getBlockTypes().forEach( ( block ) => {
+					unregisterBlockType( block.name );
+				} );
+			} );
+			const rewind = ( template, templateLock, isValidTemplate ) => {
+				reset( [] );
+				fulfillment.next();
+				fulfillment.next();
+				fulfillment.next( template );
+				fulfillment.next( templateLock );
+				return fulfillment.next( isValidTemplate );
+			};
+
+			it( 'yields action for setTemplateValidity when there is a template ' +
+				'and the blocks do not match the template and template is currently ' +
+				'not valid in the state and there is no template lock', () => {
+				const { value } = rewind(
+					[ createBlock( 'core/test-block' ) ],
+					false,
+					false
+				);
+				expect( value ).toEqual(
+					setTemplateValidity( true )
+				);
+			} );
+			it( 'yields action for setTemplateValidity when there is a template ' +
+				'and the blocks do not match the template and the template is ' +
+				'currently valid in the state and there is a template lock', () => {
+				const { value } = rewind(
+					[ createBlock( 'core/test-block' ) ],
+					'all',
+					true
+				);
+				expect( value ).toEqual(
+					setTemplateValidity( false )
+				);
+			} );
+			it( 'does not yield setTemplateValidity when the validation matches the ' +
+				'state', () => {
+				const { value, done } = rewind( [], false, true );
+				expect( value ).toBeUndefined();
+				expect( done ).toBe( true );
 			} );
 		} );
 	} );
@@ -116,31 +228,76 @@ describe( 'actions', () => {
 		} );
 	} );
 
-	describe( 'replaceBlock', () => {
-		it( 'should return the REPLACE_BLOCKS action', () => {
-			const block = {
-				clientId: 'ribs',
-			};
+	describe( 'replaceBlocks', () => {
+		const defaultBlockSettings = {
+			save: () => 'Saved',
+			category: 'common',
+			title: 'block title',
+		};
+		beforeEach( () => {
+			getDefaultBlockName.mockReturnValue( 'core/test-block' );
+			registerBlockType( 'core/test-block', defaultBlockSettings );
+		} );
 
-			expect( replaceBlock( [ 'chicken' ], block ) ).toEqual( {
+		afterEach( () => {
+			getDefaultBlockName.mockReset();
+			getBlockTypes().forEach( ( block ) => {
+				unregisterBlockType( block.name );
+			} );
+		} );
+		let fulfillment;
+		const block = { clientId: 'ribs' };
+		const clientIds = [ 'chicken' ];
+		const reset = () => fulfillment = replaceBlocks( clientIds, block );
+		it( 'should yield the REPLACE_BLOCKS action', () => {
+			reset();
+			const { value } = fulfillment.next();
+			expect( value ).toEqual( {
 				type: 'REPLACE_BLOCKS',
 				clientIds: [ 'chicken' ],
 				blocks: [ block ],
 				time: expect.any( Number ),
 			} );
 		} );
+		it( 'should yield select control for getting block count', () => {
+			const { value } = fulfillment.next();
+			expect( value ).toEqual(
+				select(
+					STORE_KEY,
+					'getBlockCount'
+				)
+			);
+		} );
+		it( 'should yield insertDefaultBlock action if there block count is ' +
+			'0', () => {
+			const { value } = fulfillment.next( 0 );
+			expect( value.type ).toBe( 'INSERT_BLOCKS' );
+			const { done } = fulfillment.next();
+			expect( done ).toBe( true );
+		} );
+		it( 'should be done if the block count is greater than 0', () => {
+			reset();
+			fulfillment.next();
+			fulfillment.next();
+			const { value, done } = fulfillment.next( 1 );
+			expect( value ).toBeUndefined();
+			expect( done ).toBe( true );
+		} );
 	} );
 
-	describe( 'replaceBlocks', () => {
-		it( 'should return the REPLACE_BLOCKS action', () => {
-			const blocks = [ {
-				clientId: 'ribs',
-			} ];
+	describe( 'replaceBlock', () => {
+		it( 'should return the REPLACE_BLOCKS generator that yields ' +
+			'the replaceBlocks action initially', () => {
+			const replaceBlocksGenerator = replaceBlock(
+				'chicken',
+				{ clientId: 'ribs' }
+			);
+			const { value } = replaceBlocksGenerator.next();
 
-			expect( replaceBlocks( [ 'chicken' ], blocks ) ).toEqual( {
+			expect( value ).toEqual( {
 				type: 'REPLACE_BLOCKS',
 				clientIds: [ 'chicken' ],
-				blocks,
+				blocks: [ { clientId: 'ribs' } ],
 				time: expect.any( Number ),
 			} );
 		} );
