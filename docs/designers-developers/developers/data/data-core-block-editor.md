@@ -767,7 +767,7 @@ Whether the most recent block change was persistent.
 
 ### resetBlocks
 
-Returns an action object used in signalling that blocks state should be
+Returns an action generator used in signalling that blocks state should be
 reset to the specified array of blocks, taking precedence over any other
 content reflected as an edit in state.
 
@@ -868,7 +868,7 @@ Returns an action object that enables or disables block selection.
 
 ### replaceBlocks
 
-Returns an action object signalling that a blocks should be replaced with
+Returns an action generator signalling that a blocks should be replaced with
 one or more replacement blocks.
 
 *Parameters*
