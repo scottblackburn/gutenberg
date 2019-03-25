@@ -444,6 +444,12 @@ The default editor settings
 
 Undocumented declaration.
 
+### storeConfig
+
+[src/index.js#L12-L12](src/index.js#L12-L12)
+
+Internal dependencies
+
 ### URLInput
 
 [src/index.js#L15-L15](src/index.js#L15-L15)
