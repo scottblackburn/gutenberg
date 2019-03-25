@@ -131,6 +131,7 @@ export class MediaPlaceholder extends Component {
 			value = {},
 			onSelectURL,
 			onDoubleClick,
+			onCancel,
 			onHTMLDrop = noop,
 			multiple = false,
 			notices,
@@ -257,6 +258,16 @@ export class MediaPlaceholder extends Component {
 							/>
 						) }
 					</div>
+				) }
+				{ onCancel && (
+					<Button
+						className="block-editor-media-placeholder__button__link"
+						title={ __( 'Cancel' ) }
+						isLink={ true }
+						onClick={ onCancel }
+					>
+						{ __( 'Cancel' ) }
+					</Button>
 				) }
 			</Placeholder>
 		);
