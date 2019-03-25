@@ -15,6 +15,7 @@ import {
 import {
 	getAllBlocks,
 	getAvailableBlockTransforms,
+	getBlockNameByTitle,
 	getBlockSetting,
 	getEditedPostContent,
 	hasBlockSwitcher,
@@ -77,11 +78,18 @@ const getTransformStructureFromFile = async ( fileBase ) => {
 	const { file: content } = getBlockFixtureHTML( fileBase );
 	await setPostContentAndSelectBlock( content );
 	const block = ( await getAllBlocks() )[ 0 ];
-	const availableTransforms = await getAvailableBlockTransforms();
+	const allTransforms = await getAvailableBlockTransforms();
+	const coreBlockTransforms = [];
+	for ( const blockTitle of allTransforms ) {
+		const blockName = await getBlockNameByTitle( blockTitle );
+		if ( blockName && blockName.startsWith( 'core' ) ) {
+			coreBlockTransforms.push( blockTitle );
+		}
+	}
 	const originalBlock = await getBlockSetting( block.name, 'title' );
 
 	return {
-		availableTransforms,
+		availableTransforms: coreBlockTransforms,
 		originalBlock,
 		content,
 	};
