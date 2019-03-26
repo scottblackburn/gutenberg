@@ -392,6 +392,12 @@ The default editor settings
 
 Undocumented declaration.
 
+### storeConfig
+
+[src/index.js#L18-L18](src/index.js#L18-L18)
+
+Undocumented declaration.
+
 ### UnstableRichTextInputEvent
 
 [src/index.js#L15-L15](src/index.js#L15-L15)

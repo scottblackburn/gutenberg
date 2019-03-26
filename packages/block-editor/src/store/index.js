@@ -17,11 +17,15 @@ import controls from './controls';
  */
 const MODULE_KEY = 'core/block-editor';
 
-const store = registerStore( MODULE_KEY, {
+export const config = {
 	reducer,
 	selectors,
 	actions,
 	controls,
+};
+
+const store = registerStore( MODULE_KEY, {
+	...config,
 	persist: [ 'preferences' ],
 } );
 applyMiddlewares( store );

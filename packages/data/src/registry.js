@@ -175,10 +175,16 @@ export function createRegistry( storeConfigs = {}, parent = null ) {
 		return registry;
 	}
 
-	Object.entries( {
-		'core/data': dataStore,
-		...storeConfigs,
-	} ).map( ( [ name, config ] ) => registry.registerStore( name, config ) );
+	if ( parent === null ) {
+		storeConfigs = {
+			'core/data': dataStore,
+			...storeConfigs,
+		};
+	}
+
+	Object.entries( storeConfigs ).forEach( ( [ name, config ] ) => {
+		registry.registerStore( name, config );
+	} );
 
 	if ( parent ) {
 		parent.subscribe( globalListener );

@@ -95,7 +95,6 @@ const DEFAULT_PROPS = {
 	position: 'top center',
 	items,
 	debouncedSpeak: noop,
-	fetchReusableBlocks: noop,
 	setTimeout: noop,
 };
 

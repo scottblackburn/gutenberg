@@ -1046,16 +1046,6 @@ Returns an action object used in signalling that the block editor settings have 
 
  * settings: Updated settings
 
-### __unstableSaveReusableBlock
-
-Returns an action object used in signalling that a temporary reusable blocks have been saved
-in order to switch its temporary id with the real id.
-
-*Parameters*
-
- * id: Reusable block's id.
- * updatedId: Updated block's id.
-
 ### __unstableMarkLastChangeAsPersistent
 
 Returns an action object used in signalling that the last block change should be marked explicitely as persistent.

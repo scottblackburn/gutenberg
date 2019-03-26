@@ -329,43 +329,6 @@ const withReplaceInnerBlocks = ( reducer ) => ( state, action ) => {
 };
 
 /**
- * Higher-order reducer which targets the combined blocks reducer and handles
- * the `SAVE_REUSABLE_BLOCK_SUCCESS` action. This action can't be handled by
- * regular reducers and needs a higher-order reducer since it needs access to
- * both `byClientId` and `attributes` simultaneously.
- *
- * @param {Function} reducer Original reducer function.
- *
- * @return {Function} Enhanced reducer function.
- */
-const withSaveReusableBlock = ( reducer ) => ( state, action ) => {
-	if ( state && action.type === 'SAVE_REUSABLE_BLOCK_SUCCESS' ) {
-		const { id, updatedId } = action;
-
-		// If a temporary reusable block is saved, we swap the temporary id with the final one
-		if ( id === updatedId ) {
-			return state;
-		}
-
-		state = { ...state };
-
-		state.attributes = mapValues( state.attributes, ( attributes, clientId ) => {
-			const { name } = state.byClientId[ clientId ];
-			if ( name === 'core/block' && attributes.ref === id ) {
-				return {
-					...attributes,
-					ref: updatedId,
-				};
-			}
-
-			return attributes;
-		} );
-	}
-
-	return reducer( state, action );
-};
-
-/**
  * Reducer returning the blocks state.
  *
  * @param {Object} state  Current state.
@@ -378,7 +341,6 @@ export const blocks = flow(
 	withInnerBlocksRemoveCascade,
 	withReplaceInnerBlocks, // needs to be after withInnerBlocksRemoveCascade
 	withBlockReset,
-	withSaveReusableBlock,
 	withPersistentBlockChange,
 )( {
 	byClientId( state = {}, action ) {

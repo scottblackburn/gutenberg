@@ -6,6 +6,7 @@ import {
 	flowRight,
 	get,
 	mapValues,
+	uniqueId,
 } from 'lodash';
 
 /**
@@ -88,7 +89,7 @@ function createReduxStore( key, options, registry ) {
 		applyMiddleware( createResolversCacheMiddleware( registry, key ), promise ),
 	];
 	if ( typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__ ) {
-		enhancers.push( window.__REDUX_DEVTOOLS_EXTENSION__( { name: key, instanceId: key } ) );
+		enhancers.push( window.__REDUX_DEVTOOLS_EXTENSION__( { name: key, instanceId: uniqueId() } ) );
 	}
 
 	const { reducer, initialState } = options;

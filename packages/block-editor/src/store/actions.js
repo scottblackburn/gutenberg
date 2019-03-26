@@ -548,23 +548,6 @@ export function updateSettings( settings ) {
 }
 
 /**
- * Returns an action object used in signalling that a temporary reusable blocks have been saved
- * in order to switch its temporary id with the real id.
- *
- * @param {string} id        Reusable block's id.
- * @param {string} updatedId Updated block's id.
- *
- * @return {Object} Action object.
- */
-export function __unstableSaveReusableBlock( id, updatedId ) {
-	return {
-		type: 'SAVE_REUSABLE_BLOCK_SUCCESS',
-		id,
-		updatedId,
-	};
-}
-
-/**
  * Returns an action object used in signalling that the last block change should be marked explicitely as persistent.
  *
  * @return {Object} Action object.

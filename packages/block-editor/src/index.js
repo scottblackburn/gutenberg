@@ -15,3 +15,4 @@ import './hooks';
 export * from './components';
 
 export { SETTINGS_DEFAULTS } from './store/defaults';
+export { config as storeConfig } from './store';
